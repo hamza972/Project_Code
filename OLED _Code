@@ -1,0 +1,93 @@
+
+/*********************************************************************
+This is an example for our Monochrome OLEDs based on SSD1306 drivers
+
+  Pick one up today in the adafruit shop!
+  ------> http://www.adafruit.com/category/63_98
+
+This example is for a 128x64 size display using SPI to communicate
+4 or 5 pins are required to interface
+
+Adafruit invests time and resources providing this open source code, 
+please support Adafruit and open-source hardware by purchasing 
+products from Adafruit!
+
+Written by Limor Fried/Ladyada  for Adafruit Industries.  
+BSD license, check license.txt for more information
+All text above, and the splash screen must be included in any redistribution
+*********************************************************************/
+
+#include "Adafruit_GFX.h"
+#include "Adafruit_SSD1306.h"
+
+/* Uncomment this block to use hardware SPI
+// If using software SPI (the default case):
+#define OLED_MOSI   D0
+#define OLED_CLK    D1
+#define OLED_DC     D2
+#define OLED_CS     D3
+#define OLED_RESET  D4
+Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
+*/
+
+// use hardware SPI
+#define OLED_DC     D3
+#define OLED_CS     D4
+#define OLED_RESET  D5
+Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
+
+
+#define NUMFLAKES 10
+#define XPOS 0
+#define YPOS 1
+#define DELTAY 2
+
+
+#define LOGO16_GLCD_HEIGHT 64 
+#define LOGO16_GLCD_WIDTH  128
+
+char temp[9];
+String tempO;
+
+
+
+int ledon = 1;
+int flashd7 = 0;
+void setup()  
+{
+   
+    Particle.subscribe("temperature", myHandler, MY_DEVICES);
+    
+    display.begin(SSD1306_SWITCHCAPVCC);
+    display.clearDisplay();
+    display.display();
+
+}
+
+
+void loop() 
+{
+  
+}
+
+
+void myHandler(const char *event, const char *data)
+{
+    
+    display.clearDisplay();
+    display.setTextColor(WHITE);
+    display.setTextSize(1);
+    display.setCursor(0,0); 
+    Time.zone(-4);
+    display.print(Time.timeStr().c_str());
+    display.setCursor(0,20); 
+    display.printf("Inside Temp:  %0.4s F",temp);
+    display.display();
+    delay(5000);
+    if(flashd7 == 1) {
+        Particle.publish("receivetemp", "1");
+        flashd7 = 0;
+    }
+
+
+}
